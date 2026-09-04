@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Widen the Frame · HCA 600</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Spectral:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#E8ECEA;
+  --paper-2:#DDE3E0;
+  --ink:#13202A;
+  --ink-soft:#4A5B66;
+  --canvas:#0E1A21;
+  --canvas-2:#16242D;
+  --rule:#C3CCC8;
+  --l1:#D9503A;
+  --l2:#DE8A3A;
+  --l3:#BCA84C;
+  --l4:#5E9C86;
+  --l5:#3D82A4;
+  --l6:#6F6FB0;
+  --focus:#D9503A;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1440px;margin:0 auto;padding:0 20px 64px}
+
+/* ---------- masthead ---------- */
+header.mast{padding:34px 0 22px;border-bottom:1px solid var(--rule)}
+.mast h1{
+  font-family:Spectral,Georgia,serif;
+  font-weight:500;font-size:clamp(30px,4.4vw,46px);
+  letter-spacing:-.015em;margin:0 0 6px;line-height:1.05;
+}
+.mast p{margin:0;max-width:66ch;color:var(--ink-soft);font-size:15px}
+.mast .course{font-size:13px;color:var(--ink-soft);margin-bottom:10px;font-weight:500}
+
+/* ---------- layout ---------- */
+.stage{display:grid;grid-template-columns:minmax(0,1.22fr) minmax(0,1fr);gap:0;margin-top:26px;
+  border:1px solid var(--rule);border-radius:3px;overflow:hidden;background:#fff}
+.left{background:var(--canvas);display:flex;flex-direction:column;min-width:0}
+.viz{padding:12px 12px 0;position:relative;min-width:0;flex:1;
+  display:flex;flex-direction:column;justify-content:center}
+.panel{padding:26px 28px 30px;min-width:0;position:relative}
+@media(max-width:900px){.stage{grid-template-columns:1fr}.panel{padding:22px 18px 26px}}
+
+svg#map{display:block;width:100%;height:auto}
+
+/* ---------- slider ---------- */
+.control{padding:6px 8px 14px;background:var(--canvas)}
+.control .lbl{display:flex;justify-content:space-between;align-items:baseline;
+  color:#8FA3AD;font-size:12px;font-weight:500;margin-bottom:9px}
+.control .lbl b{color:#E8ECEA;font-weight:500;font-size:13px}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;background:transparent;cursor:pointer}
+input[type=range]:focus{outline:none}
+input[type=range]:focus-visible::-webkit-slider-thumb{box-shadow:0 0 0 3px #fff}
+input[type=range]::-webkit-slider-runnable-track{height:3px;background:#31434E;border-radius:2px}
+input[type=range]::-moz-range-track{height:3px;background:#31434E;border-radius:2px}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;margin-top:-8.5px;
+  border-radius:50%;background:var(--paper);border:3px solid var(--canvas);box-shadow:0 0 0 1px #5C7280}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--paper);
+  border:3px solid var(--canvas);box-shadow:0 0 0 1px #5C7280}
+.ticks{display:flex;justify-content:space-between;margin-top:7px}
+.ticks span{font-size:10.5px;color:#5F7480;flex:1;text-align:center}
+.ticks span:first-child{text-align:left}
+.ticks span:last-child{text-align:right}
+.ticks span.on{color:#E8ECEA}
+
+/* ---------- panel content ---------- */
+.eyebrow{font-size:12px;font-weight:600;color:var(--ink-soft);margin:0 0 4px}
+.panel h2{font-family:Spectral,Georgia,serif;font-weight:500;font-size:26px;
+  letter-spacing:-.01em;margin:0 0 12px;line-height:1.15}
+.readout{font-family:Spectral,Georgia,serif;font-size:16.5px;line-height:1.62;
+  margin:0 0 22px;max-width:60ch}
+.readout em{color:var(--ink)}
+
+.block{border-top:1px solid var(--rule);padding-top:16px;margin-top:18px}
+.block h3{font-size:12.5px;font-weight:600;margin:0 0 10px;color:var(--ink-soft)}
+
+/* accountability bar */
+.bar{display:flex;height:34px;border-radius:2px;overflow:hidden;position:relative;background:var(--paper-2)}
+.bar div{transition:width .45s cubic-bezier(.4,0,.2,1);display:flex;align-items:center;
+  justify-content:center;color:#fff;font-size:11.5px;font-weight:600;overflow:hidden;white-space:nowrap}
+.seg-i{background:#C24A36}.seg-u{background:#C08438}.seg-o{background:#4E8B77}.seg-g{background:#3A7492}
+.ghost{position:absolute;top:-6px;bottom:-6px;width:0;border-right:2px dashed var(--ink);
+  transition:width .45s cubic-bezier(.4,0,.2,1);pointer-events:none;display:none}
+.ghost.show{display:block}
+.ghostlabel{font-size:11px;color:var(--ink-soft);margin-top:7px;display:none}
+.ghostlabel.show{display:block}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:10px;font-size:11.5px;color:var(--ink-soft)}
+.legend i{width:9px;height:9px;border-radius:1px;display:inline-block;margin-right:5px;vertical-align:baseline}
+
+/* recurrence */
+.recur{display:flex;align-items:baseline;gap:12px}
+.recur b{font-family:Spectral,Georgia,serif;font-size:38px;font-weight:500;line-height:1;
+  transition:color .4s;letter-spacing:-.02em}
+.recur span{font-size:13px;color:var(--ink-soft);max-width:30ch}
+
+.fix{font-family:Spectral,Georgia,serif;font-size:16px;line-height:1.6;margin:0}
+.lev{font-size:13px;color:var(--ink-soft);margin:10px 0 0;line-height:1.5}
+.lev b{color:var(--ink);font-weight:600}
+
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.tag{font-size:11px;border:1px solid var(--rule);border-radius:2px;padding:3px 8px;color:var(--ink-soft);background:#fff}
+
+.probe{margin:16px 0 0;padding:14px 16px;background:var(--paper);border-left:3px solid var(--focus)}
+.probe p{margin:0;font-family:Spectral,Georgia,serif;font-size:15.5px;line-height:1.55}
+
+/* node hover readout */
+.nodeinfo{color:#9DB2BC;font-size:12.5px;min-height:34px;line-height:1.35;
+  padding:0 14px 4px;pointer-events:none}
+.nodeinfo b{color:#E8ECEA;font-weight:500}
+
+/* ---------- predict gate ---------- */
+.gate{position:absolute;inset:0;background:#fff;z-index:5;padding:26px 28px;overflow:auto}
+.gate.hidden{display:none}
+.gate h2{margin-bottom:6px}
+.gate .why{font-family:Spectral,Georgia,serif;font-size:16px;line-height:1.6;color:var(--ink);margin:0 0 20px;max-width:56ch}
+.q{margin-bottom:20px}
+.q label{display:block;font-size:13px;font-weight:600;margin-bottom:9px}
+.q .val{font-family:Spectral,Georgia,serif;font-size:30px;font-weight:500}
+.q input[type=range]::-webkit-slider-runnable-track{background:var(--paper-2)}
+.q input[type=range]::-moz-range-track{background:var(--paper-2)}
+.q input[type=range]::-webkit-slider-thumb{background:var(--ink);border-color:#fff;box-shadow:0 0 0 1px var(--rule)}
+.q input[type=range]::-moz-range-thumb{background:var(--ink);border-color:#fff;box-shadow:0 0 0 1px var(--rule)}
+textarea{width:100%;border:1px solid var(--rule);border-radius:2px;padding:10px 11px;
+  font-family:inherit;font-size:14px;line-height:1.5;resize:vertical;background:#fff;color:var(--ink)}
+textarea:focus{outline:2px solid var(--focus);outline-offset:-1px}
+.btn{background:var(--ink);color:var(--paper);border:0;border-radius:2px;padding:11px 20px;
+  font-family:inherit;font-size:14px;font-weight:500;cursor:pointer}
+.btn:hover{background:#22333F}
+.btn:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.btn.ghostbtn{background:transparent;color:var(--ink-soft);border:1px solid var(--rule);margin-left:8px}
+.btn.ghostbtn:hover{background:var(--paper)}
+
+/* ---------- work section ---------- */
+.work{margin-top:34px;border:1px solid var(--rule);border-radius:3px;background:#fff;padding:26px 28px}
+.work h2{font-family:Spectral,Georgia,serif;font-weight:500;font-size:24px;margin:0 0 6px;letter-spacing:-.01em}
+.work>p.sub{margin:0 0 22px;color:var(--ink-soft);font-size:14px;max-width:70ch}
+.qgrid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+@media(max-width:760px){.qgrid{grid-template-columns:1fr}}
+.qgrid .q label{font-weight:600;font-size:13.5px}
+.qgrid .q .hint{font-size:12.5px;color:var(--ink-soft);font-weight:400;display:block;margin-top:3px;margin-bottom:8px}
+.actions{margin-top:22px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.copied{font-size:13px;color:var(--l4);font-weight:500;opacity:0;transition:opacity .2s}
+.copied.on{opacity:1}
+#exportbox{width:100%;margin-top:16px;min-height:200px;font-size:13px;display:none;
+  font-family:ui-monospace,Menlo,Consolas,monospace}
+#exportbox.on{display:block}
+
+/* ---------- instructor ---------- */
+details.note{margin-top:30px;border-top:1px solid var(--rule);padding-top:18px}
+details.note summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-soft)}
+details.note summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+details.note .body{max-width:74ch;font-size:14.5px;line-height:1.65;color:var(--ink);padding-top:12px}
+details.note h4{font-size:13px;margin:18px 0 5px;font-weight:600}
+details.note ul{margin:0;padding-left:20px}
+details.note li{margin-bottom:5px}
+
+/* small screens: SVG text needs to scale up, ticks get out of the way */
+@media(max-width:760px){
+  #nodes text{font-size:21px}
+  #loops text{font-size:23px}
+  .nodeinfo{font-size:13px}
+}
+@media(max-width:520px){
+  #nodes text{font-size:22px}
+  #loops text{font-size:24px}
+  .ticks span{display:none}
+  .ticks span:first-child,.ticks span:last-child{display:block}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="mast">
+  <div class="course">HCA 600 Healthcare Management and Systems · Edgewood University</div>
+  <h1>Widen the frame</h1>
+  <p>One incident, looked at six times. The facts never change. Everything else does.</p>
+</header>
+
+<div class="stage">
+  <!-- ============ VISUAL ============ -->
+  <div class="left">
+    <div class="viz">
+      <svg id="map" viewBox="0 0 960 900" role="img" aria-labelledby="maptitle">
+        <title id="maptitle">Radial map of the incident and the system surrounding it</title>
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+            <path d="M0,1 L9,5 L0,9 z" fill="#D9503A"/>
+          </marker>
+          <marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5.5" markerHeight="5.5" orient="auto-start-reverse">
+            <path d="M0,1 L9,5 L0,9 z" fill="#DE8A3A"/>
+          </marker>
+        </defs>
+        <g id="rings"></g>
+        <g id="edges"></g>
+        <g id="loops"></g>
+        <g id="nodes"></g>
+      </svg>
+      <div class="nodeinfo" id="nodeinfo">Point at any element to read it in full.</div>
+    </div>
+
+    <div class="control">
+      <div class="lbl"><span>Depth of analysis</span><b id="lvlname">The event</b></div>
+      <input type="range" id="slider" min="1" max="6" step="1" value="1"
+             aria-label="Depth of analysis, 1 through 6">
+      <div class="ticks" id="ticks">
+        <span>Event</span><span>Conditions</span><span>Unit</span>
+        <span>Organization</span><span>Governance</span><span>Paradigm</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ ANALYSIS ============ -->
+  <div class="panel">
+    <!-- predict gate -->
+    <div class="gate" id="gate">
+      <p class="eyebrow">Before you look at anything</p>
+      <h2>Commit to an answer first</h2>
+      <p class="why">A nurse in the medical intensive care unit programs an insulin infusion at ten times the ordered rate. The patient becomes severely hypoglycemic and needs rescue treatment. The patient recovers.<br><br>You are the administrator on call. Answer from your gut, the way you would in the actual moment. Your answer stays on screen while you work, so you can watch what happens to it.</p>
+
+      <div class="q">
+        <label for="predict">How much of this is the nurse's responsibility? <span class="val" id="predictval">50%</span></label>
+        <input type="range" id="predict" min="0" max="100" step="5" value="50">
+      </div>
+
+      <div class="q">
+        <label for="firstact">What is your first corrective action?</label>
+        <textarea id="firstact" rows="3" placeholder="One or two sentences."></textarea>
+      </div>
+
+      <button class="btn" id="lockin">Lock it in and begin</button>
+      <button class="btn ghostbtn" id="skip">Skip this</button>
+    </div>
+
+    <!-- live analysis -->
+    <p class="eyebrow" id="eyebrow">Level 1 of 6</p>
+    <h2 id="title">The event</h2>
+    <p class="readout" id="readout"></p>
+
+    <div class="block">
+      <h3>Where accountability sits at this depth</h3>
+      <div class="bar" id="bar">
+        <div class="seg-i" id="s-i"></div><div class="seg-u" id="s-u"></div>
+        <div class="seg-o" id="s-o"></div><div class="seg-g" id="s-g"></div>
+        <div class="ghost" id="ghost"></div>
+      </div>
+      <div class="ghostlabel" id="ghostlabel"></div>
+      <div class="legend">
+        <span><i style="background:#C24A36"></i>Individual</span>
+        <span><i style="background:#C08438"></i>Unit</span>
+        <span><i style="background:#4E8B77"></i>Organization</span>
+        <span><i style="background:#3A7492"></i>Governance</span>
+      </div>
+    </div>
+
+    <div class="block">
+      <h3>The intervention this analysis produces</h3>
+      <p class="fix" id="fix"></p>
+      <p class="lev" id="lev"></p>
+      <div class="tags" id="tags"></div>
+    </div>
+
+    <div class="block">
+      <h3>Odds this recurs within a year, with a different nurse</h3>
+      <div class="recur"><b id="recur">85%</b><span id="recurnote"></span></div>
+    </div>
+
+    <div class="probe"><p id="probe"></p></div>
+  </div>
+</div>
+
+<!-- ============ LEARNER WORK ============ -->
+<section class="work">
+  <h2>Your analysis</h2>
+  <p class="sub">These questions are yours, not the machine's. Nothing here is graded automatically and nothing is stored. When you are finished, build the text and paste it into the discussion board or keep it for the Week 8 reflection paper.</p>
+
+  <div class="qgrid">
+    <div class="q">
+      <label for="w1">Where did the analysis stop being comfortable?
+        <span class="hint">Name the level where you started to resist the argument, and say why.</span></label>
+      <textarea id="w1" rows="4"></textarea>
+    </div>
+    <div class="q">
+      <label for="w2">Where have you watched this happen?
+        <span class="hint">Bring an incident from your own organization. Which of these nodes were present in it?</span></label>
+      <textarea id="w2" rows="4"></textarea>
+    </div>
+    <div class="q">
+      <label for="w3">Which single node would you cut, and what breaks downstream?
+        <span class="hint">Every intervention has a second-order effect. Name yours.</span></label>
+      <textarea id="w3" rows="4"></textarea>
+    </div>
+    <div class="q">
+      <label for="w4">What can you actually change from where you sit on Monday?
+        <span class="hint">Not the board's job. Yours, at your current level of authority.</span></label>
+      <textarea id="w4" rows="4"></textarea>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" id="build">Build my text</button>
+    <button class="btn ghostbtn" id="copy">Copy to clipboard</button>
+    <span class="copied" id="copied">Copied</span>
+  </div>
+  <textarea id="exportbox" rows="14" aria-label="Assembled text for pasting into Canvas"></textarea>
+
+  <details class="note">
+    <summary>For the instructor: design rationale, competency alignment, and where this sits in the course</summary>
+    <div class="body">
+      <h4>Andragogical structure</h4>
+      <ul>
+        <li><b>Need to know before content.</b> The case and the stakes arrive before any framework does. Meadows is never named until the student has already used a leverage point.</li>
+        <li><b>Prior commitment.</b> The learner records an answer before seeing anything, and that answer stays pinned to the accountability bar as a dashed line. Adult learning runs on the gap between what a person already believes and what the evidence shows, so the gap is made literally visible rather than described.</li>
+        <li><b>Self-direction.</b> The slider moves in both directions with no gating, no score, no correct endpoint, and the prediction step is skippable. The learner sets the pace and can retreat to compare.</li>
+        <li><b>Experience as the text.</b> The second work question asks for an incident from the learner's own organization mapped onto these nodes. In a cohort of working professionals that is the richest content in the room, and it is theirs.</li>
+        <li><b>Problem-centered, not subject-centered.</b> The organizing unit is one incident, not a chapter on feedback loops.</li>
+        <li><b>Immediate application.</b> The final question forces the analysis down to the learner's actual span of control, which protects against the failure mode where systems thinking becomes an excuse to blame the board and do nothing.</li>
+      </ul>
+
+      <h4>The ethical correction at level six</h4>
+      <div>Individual accountability rises slightly from level five to level six rather than continuing to fall. This is deliberate. A tool that runs from "the nurse did it" to "nobody did it" teaches something false, and the sharpest students in the cohort will say so. Level six applies the just culture triage, human error against at-risk behavior against reckless choice, and returns a reframed individual duty. Systems thinking redistributes accountability and makes it specific. It does not dissolve it.</div>
+
+      <h4>Program competency alignment</h4>
+      <ul>
+        <li><b>#8 Systems Thinking and Innovation</b>, foundational awareness. Analyzing interdependencies is the entire mechanic. The reinforcing loops close on screen at levels four and five.</li>
+        <li><b>#3 Healthcare Operations Excellence</b>, developing. Levels two and three are process design, staffing models, and human factors in procurement.</li>
+        <li><b>#1 Values-Based Leadership.</b> Level six is an ethics problem in the shape of an interface, and psychological safety is the mechanism in loop R1.</li>
+        <li><b>#7 Professional Excellence and Communication.</b> The export produces a structured written analysis for the discussion board.</li>
+      </ul>
+
+      <h4>Placement</h4>
+      <ul>
+        <li><b>Week 3</b>, continuous improvement and high reliability. Best single fit. Loop R1 is the HRO reporting culture argument made visible, and root cause analysis is what levels one through three are doing badly and then well.</li>
+        <li><b>Week 4</b>, governance and clinical excellence. Level five is the board's causal role, which is the hardest thing to make graduate students feel rather than recite.</li>
+        <li><b>Week 5</b>, nursing and human resources. The learning outcome for that week already names feedback loops driving burnout and retention. Loop R2 is that loop.</li>
+      </ul>
+
+      <h4>Suggested discussion prompt</h4>
+      <div>Move the slider to the level at which you believe a competent chief operating officer should be operating, then defend that choice against a peer who chose a different level. Do not argue that a deeper level is automatically better. Argue what is gained and what is lost.</div>
+    </div>
+  </details>
+</section>
+
+</div>
+
+<script>
+"use strict";
+
+/* =========================================================================
+   CASE DATA
+   To add a case, copy this object. Angles are degrees, 0 is right, negative
+   is above the horizontal. Radii come from the RINGS array below.
+   ========================================================================= */
+
+var RINGS = [86, 150, 210, 264, 314, 358];   // ring radius for node levels 1..6
+var CX = 490, CY = 450;
+
+var LEVEL_COLOR = ["#D9503A","#DE8A3A","#BCA84C","#5E9C86","#3D82A4","#6F6FB0"];
+
+var NODES = [
+  {id:"event", lvl:0, a:0, r:0, s:"Insulin at 10× rate",
+   f:"The event. An insulin infusion is programmed at ten times the ordered rate."},
+
+  /* level 1 */
+  {id:"nurse", lvl:1, a:-90, s:"The nurse",
+   f:"The nurse who programmed the pump. Four years on the unit, no prior events."},
+  {id:"harm", lvl:1, a:90, s:"Patient harm",
+   f:"Severe hypoglycemia, rescue dextrose, two extra days in the unit. The patient recovers."},
+
+  /* level 2 */
+  {id:"fatigue", lvl:2, a:-146, s:"Hour 14 of 16",
+   f:"Fourteenth hour of a sixteen hour shift, the third such shift that week."},
+  {id:"interrupt", lvl:2, a:-52, s:"Two interruptions",
+   f:"Two interruptions during programming, one a call light, one a colleague asking for a key."},
+  {id:"pump", lvl:2, a:4, s:"Unfamiliar pump",
+   f:"A loaner pump with a different keypad sequence than the unit's standard fleet."},
+  {id:"vials", lvl:2, a:58, s:"Look-alike vials",
+   f:"Two insulin concentrations stocked in near-identical vials in the same drawer."},
+  {id:"nocheck", lvl:2, a:142, s:"No second check",
+   f:"The independent double check is policy, but no second nurse was free to perform it."},
+
+  /* level 3 */
+  {id:"ratio", lvl:3, a:-172, s:"Ratio 1:3",
+   f:"Assignment of three patients on a unit whose own acuity model calls for two."},
+  {id:"overtime", lvl:3, a:-118, s:"Overtime policy",
+   f:"Mandatory overtime used as the primary coverage tool rather than the last one."},
+  {id:"float", lvl:3, a:-72, s:"Float pool cut",
+   f:"The float pool was eliminated in a prior fiscal year to reduce labor cost."},
+  {id:"alerts", lvl:3, a:-24, s:"Advisory alerts",
+   f:"Pump dose limits configured as advisory, dismissible with a single keystroke."},
+  {id:"pharm", lvl:3, a:30, s:"Two strengths",
+   f:"Pharmacy stocks two concentrations because standardizing would raise unit cost."},
+  {id:"alarm", lvl:3, a:88, s:"Alarm fatigue",
+   f:"Roughly ninety alerts per nurse per shift, the great majority of them not actionable."},
+  {id:"charge", lvl:3, a:166, s:"Charge span",
+   f:"The charge nurse is covering two units and carries a patient assignment."},
+
+  /* level 4 */
+  {id:"capital", lvl:4, a:-154, s:"Bought on price",
+   f:"The capital committee selected the loaner fleet on price. No human factors review, no nursing seat at the table."},
+  {id:"target", lvl:4, a:-100, s:"Productivity target",
+   f:"Worked hours per patient day target set centrally and reported up weekly."},
+  {id:"reporting", lvl:4, a:-44, s:"Punitive reporting",
+   f:"Event reports route through the same channel as corrective action. Staff have learned what filing one costs."},
+  {id:"agency", lvl:4, a:18, s:"Agency cap",
+   f:"A hard cap on agency staffing spend, enforced regardless of census or acuity."},
+  {id:"orient", lvl:4, a:122, s:"Orientation halved",
+   f:"Critical care orientation compressed from twelve weeks to six to shorten time to productivity."},
+
+  /* level 5 */
+  {id:"board", lvl:5, a:-168, s:"Outcomes only",
+   f:"The board quality committee reviews outcomes quarterly. Near miss and reporting rate data never reach it."},
+  {id:"incentive", lvl:5, a:-124, s:"Margin-weighted pay",
+   f:"Executive incentive compensation weighted roughly seventy percent to financial performance."},
+  {id:"costcenter", lvl:5, a:-84, s:"Safety as cost",
+   f:"The operating belief, never written anywhere, that safety work is an expense rather than a source of margin."},
+  {id:"margin", lvl:5, a:-8, s:"Margin pressure",
+   f:"Operating margin at 1.8 percent, inside covenant range but under watch."},
+  {id:"labor", lvl:5, a:48, s:"Nurse shortage",
+   f:"Regional shortage of experienced critical care nurses, worsened by local turnover."},
+  {id:"access", lvl:5, a:152, s:"Access mandate",
+   f:"A mission commitment to keep services open in a community with no alternative provider."},
+
+  /* level 6 */
+  {id:"blame", lvl:6, a:-178, s:"Blame paradigm",
+   f:"The mental model that errors are produced by careless people, and that the cure is better people."},
+  {id:"just", lvl:6, a:12, s:"Just culture",
+   f:"The alternative model. Sort human error from at-risk behavior from reckless choice, then respond to each differently."},
+  {id:"design", lvl:6, a:100, s:"Design as duty",
+   f:"The paradigm in which designing safe conditions is a named leadership obligation, not a quality department project."}
+];
+
+var EDGES = [
+  ["nurse","event"],["harm","event"],
+  ["fatigue","nurse"],["interrupt","nurse"],["pump","nurse"],["vials","nurse"],["nocheck","nurse"],
+  ["ratio","nocheck"],["ratio","fatigue"],["overtime","fatigue"],["float","ratio"],
+  ["alerts","pump"],["pharm","vials"],["alarm","interrupt"],["charge","nocheck"],
+  ["capital","pump"],["target","ratio"],["target","float"],["reporting","event"],
+  ["agency","float"],["orient","pump"],["orient","nurse"],
+  ["board","reporting"],["incentive","target"],["costcenter","capital"],["costcenter","target"],
+  ["margin","incentive"],["labor","agency"],["access","margin"],["harm","margin"],
+  ["blame","reporting"],["just","reporting"],["design","capital"]
+];
+
+var LOOPS = [
+  {from:4, marker:"ah", color:"#D9503A",
+   path:["event","reporting","capital","pump"],
+   label:"R1  Blame keeps the hazard invisible"},
+  {from:5, marker:"ah2", color:"#DE8A3A",
+   path:["harm","margin","incentive","target","ratio","nurse"],
+   label:"R2  The harm feeds the pressure that produced it"}
+];
+
+var LEVELS = [
+{
+  name:"The event",
+  read:"A nurse programs an insulin infusion at ten times the ordered rate. At this resolution the picture is complete and it is very simple. One person performed one action incorrectly, and a patient was harmed. Nothing else is in the frame, because nothing else has been let into it.",
+  acct:[90,6,3,1],
+  fix:"Counseling, medication administration remediation, a competency check, and a note in the file. Possibly suspension.",
+  lev:"Meadows leverage point 12, constants and parameters. The weakest place to intervene in any system.",
+  tags:["Competency 3 Operations","Competency 1 Values-Based Leadership"],
+  recur:85,
+  recurnote:"because nothing in the conditions has moved",
+  probe:"If this nurse resigns tomorrow, does the risk leave the building with them?"
+},
+{
+  name:"Conditions at the sharp end",
+  read:"Now let in what was in the room. Hour fourteen of sixteen. Two interruptions mid-sequence. A loaner pump with a different keypad order. Two insulin concentrations in look-alike vials in one drawer. A required double check with no second nurse free to do it. None of this excuses the action. All of it changes the probability of the action.",
+  acct:[62,24,11,3],
+  fix:"Enforce the independent double check, protect medication administration from interruption, standardize to one insulin concentration on the unit.",
+  lev:"Leverage points 11 and 10, buffers and physical structure. Better, and still near the bottom.",
+  tags:["Competency 3 Operations","Competency 8 Systems Thinking"],
+  recur:62,
+  recurnote:"the fixes are real, but each one depends on staff who are already short",
+  probe:"Every one of these conditions was decided by someone. Who, and when?"
+},
+{
+  name:"The unit as a system",
+  read:"Pull back again and the conditions turn out to be outputs. The missing second nurse is a staffing ratio. The ratio is a float pool that was eliminated. The unfamiliar pump has dose limits set to advisory because hard limits generate calls to pharmacy. The two concentrations exist because standardizing costs more per unit. The fourteenth hour is a scheduling policy. The error is starting to look less like an event and more like a yield.",
+  acct:[41,34,20,5],
+  fix:"Rebuild the staffing and acuity model, restore relief coverage, standardize the pump fleet, configure hard dose limits, retune alerting to reduce ninety alarms per shift to a number a person can attend to.",
+  lev:"Leverage points 9 and 8, delays and balancing loops. The unit can act here, and the changes hold without heroics.",
+  tags:["Competency 3 Operations","Competency 8 Systems Thinking","Competency 4 People-Centered Leadership"],
+  recur:44,
+  recurnote:"real reduction, but every fix listed here needs money the unit does not control",
+  probe:"The unit cannot approve any of this. So who is the analysis actually addressed to?"
+},
+{
+  name:"Organizational structure and policy",
+  read:"Here the shape of the picture changes, because the arrows stop pointing one way. The capital committee bought the pump fleet on price with no human factors review and no nurse in the room. Event reports run through the same channel as discipline, so people file fewer of them. Fewer reports means the pump problem never reached the committee that bought the pump. That is not a chain. It is a circle, and it is now drawn on the map.",
+  acct:[26,29,37,8],
+  fix:"Separate event reporting from corrective action entirely. Add human factors and frontline evaluation as binding criteria in capital selection. Rebuild orientation to competency rather than to a calendar.",
+  lev:"Leverage points 6 and 5, information flows and the rules of the system. This is where interventions start to stick without anyone maintaining them.",
+  tags:["Competency 8 Systems Thinking","Competency 3 Operations","Competency 1 Values-Based Leadership"],
+  recur:24,
+  recurnote:"the loop is now visible, which is the precondition for breaking it",
+  probe:"Loop R1 is on the map. Trace it once with your finger and say out loud where you would cut it."
+},
+{
+  name:"Governance and goals",
+  read:"The outermost ring is the quietest and it sets everything inside it. The board reviews outcomes quarterly and never sees a near miss or a reporting rate, so the loop below is invisible at the level with the authority to break it. Executive incentive is weighted heavily to margin. Margin is genuinely thin, the access commitment is genuinely real, and the labor market is genuinely tight. Nobody in this ring acted in bad faith. The system produced the error anyway, which is the entire point.",
+  acct:[16,23,32,29],
+  fix:"Put reporting rate and near miss volume in front of the board as leading indicators. Rebalance incentive weighting toward safety and workforce stability. Seat nursing on capital selection with a vote.",
+  lev:"Leverage point 3, the goals of the system. Change what the organization is actually optimizing and everything inside reorganizes around it.",
+  tags:["Competency 8 Systems Thinking","Competency 5 Strategic Management","Competency 2 Financial Stewardship"],
+  recur:13,
+  recurnote:"the conditions that produced the error are now being managed rather than absorbed",
+  probe:"Loop R2 has closed. The cost of the harm feeds the margin pressure that produced the harm. Where does that loop end if nobody intervenes?"
+},
+{
+  name:"Paradigm, and the return of accountability",
+  read:"Underneath every ring is one assumption: that errors are caused by careless people and the cure is better people. Replace it and the whole diagram reorganizes. But watch the first bar carefully, because it just moved up. Sort the nurse's conduct honestly. Human error, at-risk behavior, or reckless choice? Programming an unfamiliar pump at hour fourteen is human error, and you console it. Skipping a double check that was genuinely available is at-risk behavior, and you coach it. Systems thinking did not remove this nurse's accountability. It found the right size of it, and it stopped using it as a substitute for design.",
+  acct:[18,22,30,30],
+  fix:"Adopt the just culture algorithm as the organization's first response to every event, and make safe design a named executive obligation rather than a quality department deliverable.",
+  lev:"Leverage points 2 and 1, the paradigm and the capacity to change paradigms. The most powerful and the slowest.",
+  tags:["Competency 1 Values-Based Leadership","Competency 8 Systems Thinking","Competency 4 People-Centered Leadership"],
+  recur:9,
+  recurnote:"and the remaining risk is now the kind an organization can see coming",
+  probe:"Compare this bar to the answer you locked in before you started. What changed, the facts or the frame?"
+}];
+
+/* =========================================================================
+   RENDER
+   ========================================================================= */
+
+var byId = {};
+NODES.forEach(function(n){
+  var r = (n.lvl === 0) ? 0 : RINGS[n.lvl - 1];   // level 0 is the centre
+  var t = (n.a || 0) * Math.PI / 180;
+  n.x = CX + r * Math.cos(t);
+  n.y = CY + r * Math.sin(t);
+  n.col = LEVEL_COLOR[Math.max(0, n.lvl - 1)];
+  byId[n.id] = n;
+});
+
+var SVGNS = "http://www.w3.org/2000/svg";
+function el(tag, attrs){
+  var e = document.createElementNS(SVGNS, tag);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+var gRings  = document.getElementById("rings");
+var gEdges  = document.getElementById("edges");
+var gLoops  = document.getElementById("loops");
+var gNodes  = document.getElementById("nodes");
+var info    = document.getElementById("nodeinfo");
+
+// static ring guides
+RINGS.forEach(function(r, i){
+  if (r === 0) return;
+  gRings.appendChild(el("circle", {cx:CX, cy:CY, r:r, fill:"none",
+    stroke:"#22323C", "stroke-width":1, "stroke-dasharray":"1 5"}));
+});
+
+// edges
+var edgeEls = EDGES.map(function(pair){
+  var a = byId[pair[0]], b = byId[pair[1]];
+  var mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+  // bow the curve gently away from centre
+  var dx = mx - CX, dy = my - CY, d = Math.sqrt(dx*dx + dy*dy) || 1;
+  var qx = mx + (dx/d) * 14, qy = my + (dy/d) * 14;
+  var p = el("path", {d:"M"+a.x+","+a.y+" Q"+qx+","+qy+" "+b.x+","+b.y,
+    fill:"none", stroke:"#2F4450", "stroke-width":1.1, opacity:0});
+  gEdges.appendChild(p);
+  return {p:p, lvl:Math.max(a.lvl, b.lvl)};
+});
+
+// loops
+var loopEls = LOOPS.map(function(L){
+  var pts = L.path.map(function(id){ return byId[id]; });
+  var d = "M" + pts[0].x + "," + pts[0].y;
+  for (var i = 1; i < pts.length; i++){
+    var a = pts[i-1], b = pts[i];
+    var mx = (a.x+b.x)/2, my = (a.y+b.y)/2;
+    var dx = mx-CX, dy = my-CY, dd = Math.sqrt(dx*dx+dy*dy) || 1;
+    d += " Q" + (mx+(dx/dd)*26) + "," + (my+(dy/dd)*26) + " " + b.x + "," + b.y;
+  }
+  var a2 = pts[pts.length-1], b2 = pts[0];
+  var mx2 = (a2.x+b2.x)/2, my2 = (a2.y+b2.y)/2;
+  var dx2 = mx2-CX, dy2 = my2-CY, dd2 = Math.sqrt(dx2*dx2+dy2*dy2) || 1;
+  d += " Q" + (mx2+(dx2/dd2)*26) + "," + (my2+(dy2/dd2)*26) + " " + b2.x + "," + b2.y;
+
+  var p = el("path", {d:d, fill:"none", stroke:L.color, "stroke-width":2.2,
+    "stroke-linecap":"round", "stroke-dasharray":"7 6", opacity:0,
+    "marker-mid":"url(#"+L.marker+")"});
+  gLoops.appendChild(p);
+
+  var t = el("text", {x:CX, y:CY + 405, "text-anchor":"middle",
+    fill:L.color, "font-size":15, "font-family":"IBM Plex Sans, sans-serif",
+    "font-weight":500, opacity:0});
+  t.textContent = L.label;
+  gLoops.appendChild(t);
+  return {p:p, t:t, from:L.from};
+});
+// stack the two loop captions
+if (loopEls[1]) loopEls[1].t.setAttribute("y", CY + 428);
+
+// nodes
+var nodeEls = NODES.map(function(n){
+  var g = el("g", {opacity:0, style:"cursor:default"});
+  var isCentre = (n.lvl === 0);
+  var rad = isCentre ? 16 : 6;
+
+  if (isCentre){
+    g.appendChild(el("circle", {cx:n.x, cy:n.y, r:26, fill:"none",
+      stroke:"#D9503A", "stroke-width":1, opacity:.45}));
+  }
+  var c = el("circle", {cx:n.x, cy:n.y, r:rad, fill:n.col,
+    stroke:"#0E1A21", "stroke-width":1.6});
+  g.appendChild(c);
+
+  var right = Math.cos((n.a||0) * Math.PI/180) >= -0.08;
+  var tx, anchor;
+  if (isCentre){ tx = n.x; anchor = "middle"; }
+  else if (right){ tx = n.x + 12; anchor = "start"; }
+  else { tx = n.x - 12; anchor = "end"; }
+
+  var t = el("text", {x:tx, y:isCentre ? n.y + 42 : n.y + 4.4,
+    "text-anchor":anchor, fill:"#B9C9D1",
+    "font-size":isCentre ? 15 : 13,
+    "font-family":"IBM Plex Sans, sans-serif",
+    "font-weight":isCentre ? 500 : 400});
+  t.textContent = n.s;
+  g.appendChild(t);
+
+  // generous invisible hit area
+  var hit = el("circle", {cx:n.x, cy:n.y, r:isCentre ? 30 : 15,
+    fill:"transparent", style:"cursor:pointer"});
+  g.appendChild(hit);
+
+  function show(){ info.innerHTML = "<b>" + n.s + "</b> &nbsp; " + n.f; c.setAttribute("r", rad + 2.5); }
+  function hide(){ info.textContent = "Point at any element to read it in full."; c.setAttribute("r", rad); }
+  hit.addEventListener("mouseenter", show);
+  hit.addEventListener("mouseleave", hide);
+  hit.addEventListener("click", show);
+
+  gNodes.appendChild(g);
+  return {g:g, lvl:n.lvl, node:n, dot:c, label:t};
+});
+
+/* ---------- panel refs ---------- */
+var slider   = document.getElementById("slider");
+var elTitle  = document.getElementById("title");
+var elEye    = document.getElementById("eyebrow");
+var elRead   = document.getElementById("readout");
+var elFix    = document.getElementById("fix");
+var elLev    = document.getElementById("lev");
+var elTags   = document.getElementById("tags");
+var elRecur  = document.getElementById("recur");
+var elRnote  = document.getElementById("recurnote");
+var elProbe  = document.getElementById("probe");
+var elLvlName= document.getElementById("lvlname");
+var ticks    = document.getElementById("ticks").children;
+var segs     = ["s-i","s-u","s-o","s-g"].map(function(i){ return document.getElementById(i); });
+var ghost    = document.getElementById("ghost");
+var ghostLbl = document.getElementById("ghostlabel");
+
+var prediction = null;
+
+function render(lv){                 // lv is 1..6
+  var L = LEVELS[lv - 1];
+
+  nodeEls.forEach(function(o){
+    o.g.setAttribute("opacity", o.lvl <= lv ? 1 : 0);
+    o.g.style.transition = "opacity .35s ease";
+    // level 6 re-illuminates the nurse: accountability returns, reframed
+    if (o.node.id === "nurse"){
+      o.dot.setAttribute("fill", lv >= 6 ? "#6F6FB0" : "#D9503A");
+      o.label.textContent = lv >= 6 ? "Nurse, reframed" : "The nurse";
+    }
+  });
+  edgeEls.forEach(function(e){
+    e.p.style.transition = "opacity .35s ease";
+    e.p.setAttribute("opacity", e.lvl <= lv ? 0.85 : 0);
+  });
+  loopEls.forEach(function(o){
+    var on = lv >= o.from;
+    o.p.style.transition = "opacity .4s ease";
+    o.t.style.transition = "opacity .4s ease";
+    o.p.setAttribute("opacity", on ? 0.95 : 0);
+    o.t.setAttribute("opacity", on ? 1 : 0);
+  });
+
+  elEye.textContent   = "Level " + lv + " of 6";
+  elTitle.textContent = L.name;
+  elLvlName.textContent = L.name;
+  elRead.textContent  = L.read;
+  elFix.textContent   = L.fix;
+  elLev.innerHTML     = "<b>Leverage.</b> " + L.lev;
+  elProbe.textContent = L.probe;
+
+  elTags.innerHTML = "";
+  L.tags.forEach(function(t){
+    var s = document.createElement("span");
+    s.className = "tag"; s.textContent = t; elTags.appendChild(s);
+  });
+
+  L.acct.forEach(function(v, i){
+    segs[i].style.width = v + "%";
+    segs[i].textContent = v >= 12 ? v + "%" : "";
+  });
+
+  elRecur.textContent = L.recur + "%";
+  elRecur.style.color = LEVEL_COLOR[lv - 1];
+  elRnote.textContent = L.recurnote;
+
+  for (var i = 0; i < ticks.length; i++){
+    ticks[i].className = (i === lv - 1) ? "on" : "";
+  }
+
+  if (prediction !== null){
+    ghost.classList.add("show");
+    ghost.style.width = prediction + "%";
+    ghostLbl.classList.add("show");
+    var gap = prediction - L.acct[0];
+    ghostLbl.textContent = "Your first answer put the nurse at " + prediction + "%. " +
+      (Math.abs(gap) < 6 ? "This level agrees with you."
+        : (gap > 0 ? "This level is " + gap + " points below it."
+                   : "This level is " + Math.abs(gap) + " points above it."));
+  }
+}
+
+slider.addEventListener("input", function(){ render(parseInt(slider.value, 10)); });
+
+/* ---------- predict gate ---------- */
+var gate = document.getElementById("gate");
+var predict = document.getElementById("predict");
+var predictval = document.getElementById("predictval");
+predict.addEventListener("input", function(){ predictval.textContent = predict.value + "%"; });
+
+document.getElementById("lockin").addEventListener("click", function(){
+  prediction = parseInt(predict.value, 10);
+  gate.classList.add("hidden");
+  render(parseInt(slider.value, 10));
+  slider.focus();
+});
+document.getElementById("skip").addEventListener("click", function(){
+  gate.classList.add("hidden");
+  slider.focus();
+});
+
+/* ---------- export ---------- */
+function assemble(){
+  var lv = parseInt(slider.value, 10);
+  var L = LEVELS[lv - 1];
+  var v = function(id){ return (document.getElementById(id).value || "").trim() || "[not answered]"; };
+  var out = [];
+  out.push("HCA 600 SYSTEMS THINKING ANALYSIS");
+  out.push("Case: insulin infusion programmed at ten times the ordered rate");
+  out.push("");
+  if (prediction !== null){
+    out.push("MY ANSWER BEFORE ANY ANALYSIS");
+    out.push("Nurse responsibility: " + prediction + "%");
+    out.push("First corrective action: " + ((document.getElementById("firstact").value || "").trim() || "[not answered]"));
+    out.push("");
+  }
+  out.push("DEPTH REACHED: level " + lv + " of 6, " + L.name);
+  out.push("Accountability at this depth: individual " + L.acct[0] + "%, unit " + L.acct[1] +
+           "%, organization " + L.acct[2] + "%, governance " + L.acct[3] + "%");
+  out.push("Intervention this analysis produces: " + L.fix);
+  out.push("Leverage: " + L.lev);
+  out.push("Estimated recurrence within one year: " + L.recur + "%");
+  out.push("");
+  out.push("WHERE THE ANALYSIS STOPPED BEING COMFORTABLE");
+  out.push(v("w1"));
+  out.push("");
+  out.push("WHERE I HAVE WATCHED THIS HAPPEN");
+  out.push(v("w2"));
+  out.push("");
+  out.push("THE NODE I WOULD CUT, AND WHAT BREAKS DOWNSTREAM");
+  out.push(v("w3"));
+  out.push("");
+  out.push("WHAT I CAN CHANGE FROM WHERE I SIT");
+  out.push(v("w4"));
+  return out.join("\n");
+}
+
+var box = document.getElementById("exportbox");
+document.getElementById("build").addEventListener("click", function(){
+  box.value = assemble();
+  box.classList.add("on");
+  box.scrollIntoView({behavior:"smooth", block:"nearest"});
+});
+document.getElementById("copy").addEventListener("click", function(){
+  if (!box.classList.contains("on")){ box.value = assemble(); box.classList.add("on"); }
+  box.select();
+  var ok = false;
+  try { ok = document.execCommand("copy"); } catch(e){}
+  if (navigator.clipboard && !ok){ navigator.clipboard.writeText(box.value); ok = true; }
+  var c = document.getElementById("copied");
+  c.classList.add("on");
+  setTimeout(function(){ c.classList.remove("on"); }, 1600);
+});
+
+render(1);
+</script>
+</body>
+</html>
